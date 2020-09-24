@@ -1,13 +1,6 @@
 const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
-
-const renderProduct = (title='Товар', price=5000) => {
-    return `<div class="product-item">
-                <h3>${title}</h3>
-                <p class='price'>${price}</p>
-                <button class="by-btn">Добавить в корзину</button>
-              </div>`;
-};
-
+let catalogDict = {}; // формируется после получения данных о товарах с сервера. Используется для связи между кнопкой "добавить в корзину"
+                        // и объектом товара.
 
 class Basket {
     constructor (client){
@@ -15,7 +8,33 @@ class Basket {
         this.productList=[];
     }
 
-
+    renderBasket = function(){
+        let basketHTML=[`
+            <h2>Корзина (${this.client}).</h2>
+            <h3> Всего ${this.basketQuantity} товара(ов) на сумму ${this.basketPrice} &#8381</h3>
+            <a class="close" href="#">&times;</a>
+            <hr>
+            `
+        ];
+        this.productList.forEach(product => {
+            basketHTML += `
+            <div class="basket-item">
+                <h2>${product.title}</h2>
+                    <div class="basket-item-text">
+                        <p class='price'>Price: ${product.price} &#8381</p>
+                        <p> Quantity: ${product.quantity}</p>
+                    </div>
+                    <div class="basket-item-image">
+                        <img src=${product.image_url} alt="${product.title}"> 
+                    </div>
+                <hr>
+            </div>
+            `;
+        
+        });
+        return basketHTML;
+    }
+    
     addProduct = function(Product){
         let productExist = false;
         this.productList.forEach(product => {
@@ -30,25 +49,22 @@ class Basket {
         }
     }
 
-
-
     get basketQuantity() {
-        return this.productList.length;
+        let basketQuantity = 0;
+        this.productList.forEach(product => {
+            basketQuantity += product.quantity
+        })
+        return basketQuantity;
     }
 
     get basketPrice() {
         let total=0;
         this.productList.forEach(product => {
-            total += product.price
+            total += product.price * product.quantity
         });
         return total;
 
     }
-
-    get getProductList(){
-        
-    }
-
 }
 
 
@@ -65,14 +81,11 @@ class Product {
         <img src=${this.image_url} alt=""> 
         <h3>${this.title}</h3>
         <p class='price'>${this.price} &#8381</p>
-        <button class="by-btn" id="${this.id}" >Добавить в корзину</button>
+        <button class="by-btn button" id="${this.id}" >Добавить в корзину</button>
       </div>`;
     }
 
 }
-
-
-// ------------------------------------------------------
 
 
 function makeGETRequest(url, callback) {
@@ -93,10 +106,8 @@ function makeGETRequest(url, callback) {
     xhr.send();
   }
   
-
-
-
-let catalogDict = {}
+// Функция для получения списка товаров с сервера, формирования словаря-каталога с этим списком ({id товара: объект товара}),
+// отрисовывания товаров на странице
 function fetchGoods(){
     makeGETRequest(`${API}/catalogData.json`, (items) => {
         this.items = JSON.parse(items);
@@ -105,51 +116,31 @@ function fetchGoods(){
             catalogDict[item.id_product] = product;
             document.querySelector('.products').insertAdjacentHTML('beforeend', product.renderProduct());
         }
-
         )
     }
-
     )
 }
 
-
-
-
-
-
-
+// Навешиваем события клика на кнопку "Добавить в корзину"
 function events () {
-    console.log('events started');
-    temp = document.querySelectorAll('.by-btn');
-    console.log(temp);
     document.querySelectorAll('.by-btn').forEach(button => {
-        console.log('beep')
         button.addEventListener('click', event => {
-            console.log(event.target.id);
-            basket1.addProduct(catalogDict[event.target.id])
+            basket.addProduct(catalogDict[event.target.id])
 
         })
     })
 }
 
-const basket1 = new Basket('user1');
-// // fetchGoods()
-// // setTimeout(()=> {events()}, 3000);
+// я предполагаю, что пользователь должен появиться после авторизации, которой у нас (пока) нет. Поэтому делаю вручную.
+const basket = new Basket('Anonimus');
 
-// const promise = new Promise(resolve => {
-//     resolve();
-// })
+// на клик по кнопке "корзина" навешено событие - отрисовать корзину.
+document.getElementById('basket_button').addEventListener('click', event => document.querySelector('.basket_content').innerHTML=basket.renderBasket());
 
-// promise.then(fetchGoods).then(events());
 
-const fetchPromise = fetch(`${API}/catalogData.json`);
-
+// Promise я не смог победить. Цепочка срабатывает, но без костыля в виде задержки (последняя строка) events() не находит ни одной кнопки.
+// Если у Вас будет минута свободная, напишите, пожалуйста, как нужно то было?
+const fetchPromise = new Promise((resolve)=>{fetchGoods()});
 fetchPromise.then(response => {
     return response.json();
-  }).then(items => {
-    items.forEach(item => {
-        const product = new Product(item.id_product, item.product_name, item.price);
-        catalogDict[item.id_product] = product;
-        document.querySelector('.products').insertAdjacentHTML('beforeend', product.renderProduct());
-})
-  }).then(setTimeout(()=> {events()}, 100));
+  }).then(setTimeout(()=> {events()}, 800));
