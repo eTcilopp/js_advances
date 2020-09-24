@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamburger</title>
+</head>
+<body>
+    
+    <script>
+        class Hamburger {
+            constructor(size, stuffing, topping='none') {
+                this.size = size;
+                this.stuffing = stuffing;
+                this.topping = topping;
+            }
+
+            get priceAndCalories(){
+                // В словаре разместил "факты о продукте" - цена и калорийность
+                let food_facts={'small':[50,20], 'large':[100, 40], 'cheese':[10, 20], 
+                                'salad':[20, 5], 'fries':[15, 10], 'spicy':[15, 0], 'mayo':[20, 5], 'none':[0, 0] };
+                let price = food_facts[this.size][0]+food_facts[this.stuffing][0]+food_facts[this.topping][0];
+                let calories = food_facts[this.size][1]+food_facts[this.stuffing][1]+food_facts[this.topping][1];
+                return [price, calories]
+            }
+        }
+
+        order1 = new Hamburger('large', 'cheese', 'mayo' ) // [130, 65]
+        order2 = new Hamburger('small', 'fries') // [65, 30]
+        order3 = new Hamburger('large', 'none', 'spicy') //[115, 40]
+
+    </script>
+</body>
+</html>
