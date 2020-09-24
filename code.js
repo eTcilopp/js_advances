@@ -1,3 +1,5 @@
+const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+
 const renderProduct = (title='Товар', price=5000) => {
     return `<div class="product-item">
                 <h3>${title}</h3>
@@ -6,17 +8,29 @@ const renderProduct = (title='Товар', price=5000) => {
               </div>`;
 };
 
+
 class Basket {
     constructor (client){
         this.client=client;
         this.productList=[];
     }
 
+
     addProduct = function(Product){
-        this.productList.push(Product)
-        // return this.productList
-        return
+        let productExist = false;
+        this.productList.forEach(product => {
+            if (product.id == Product.id){
+                product.quantity++;
+                productExist = true;
+                return;
+            }
+        })
+        if (!productExist){
+            this.productList.push(Object.assign({}, Product));
+        }
     }
+
+
 
     get basketQuantity() {
         return this.productList.length;
@@ -31,6 +45,10 @@ class Basket {
 
     }
 
+    get getProductList(){
+        
+    }
+
 }
 
 
@@ -40,33 +58,98 @@ class Product {
         this.title=title;
         this.price=price;
         this.image_url=image_url;
+        this.quantity = 1;
     }
     renderProduct() {
         return `<div class="product-item">
         <img src=${this.image_url} alt=""> 
         <h3>${this.title}</h3>
         <p class='price'>${this.price} &#8381</p>
-        <button class="by-btn">Добавить в корзину</button>
+        <button class="by-btn" id="${this.id}" >Добавить в корзину</button>
       </div>`;
     }
 
 }
 
-const product1 = new Product(1, 'Notebook', 20000)
-const product2 = new Product(2, 'Mouse', 1500)
-const product3 = new Product(3, 'Keyboard', 5000)
-const product4 = new Product(4, 'Printer', 4500)
 
-document.querySelector('.products').insertAdjacentHTML('beforeend', product1.renderProduct())
-document.querySelector('.products').insertAdjacentHTML('beforeend', product2.renderProduct())
-document.querySelector('.products').insertAdjacentHTML('beforeend', product3.renderProduct())
-document.querySelector('.products').insertAdjacentHTML('beforeend', product4.renderProduct())
+// ------------------------------------------------------
 
-const basket1 = new Basket('user1')
-basket1.addProduct(product1)
-basket1.addProduct(product2)
-basket1.addProduct(product4)
 
-console.log('Quantity total: ' + basket1.basketQuantity) //Quantity total: 3
-console.log('Price total: ' + basket1.basketPrice) //Price total: 26000
+function makeGETRequest(url, callback) {
+    var xhr;
+  
+    if (window.XMLHttpRequest) {
+      xhr = new XMLHttpRequest();
+    } else if (window.ActiveXObject) { 
+      xhr = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+  
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        callback(xhr.responseText);
+      }
+    }
+    xhr.open('GET', url, true);
+    xhr.send();
+  }
+  
 
+
+
+let catalogDict = {}
+function fetchGoods(){
+    makeGETRequest(`${API}/catalogData.json`, (items) => {
+        this.items = JSON.parse(items);
+        this.items.forEach(item => {
+            const product = new Product(item.id_product, item.product_name, item.price);
+            catalogDict[item.id_product] = product;
+            document.querySelector('.products').insertAdjacentHTML('beforeend', product.renderProduct());
+        }
+
+        )
+    }
+
+    )
+}
+
+
+
+
+
+
+
+function events () {
+    console.log('events started');
+    temp = document.querySelectorAll('.by-btn');
+    console.log(temp);
+    document.querySelectorAll('.by-btn').forEach(button => {
+        console.log('beep')
+        button.addEventListener('click', event => {
+            console.log(event.target.id);
+            basket1.addProduct(catalogDict[event.target.id])
+
+        })
+    })
+}
+
+const basket1 = new Basket('user1');
+// // fetchGoods()
+// // setTimeout(()=> {events()}, 3000);
+
+// const promise = new Promise(resolve => {
+//     resolve();
+// })
+
+// promise.then(fetchGoods).then(events());
+
+const fetchPromise = fetch(`${API}/catalogData.json`);
+
+fetchPromise.then(response => {
+    return response.json();
+  }).then(items => {
+    items.forEach(item => {
+        const product = new Product(item.id_product, item.product_name, item.price);
+        catalogDict[item.id_product] = product;
+        document.querySelector('.products').insertAdjacentHTML('beforeend', product.renderProduct());
+})
+  }).then(setTimeout(()=> {events()}, 100));
