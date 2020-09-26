@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <form onsubmit="event.preventDefault();" action="">
+
+                <label for="name" id="name_label">Name:</label><br>
+                <input type="text" id="name_field" name="name"><br><br>
+                <label for="phone" id="phone_label">Phone:</label><br>
+                <input type="phone" id="phone_field" name="phone"><br><br>
+                <label for="email" id="email_label">Email:</label><br>
+                <input type="text" id="email_field" name="email"><br><br>
+                <label for="message">Message:</label><br>
+                <textarea id="message_field" name="message" rows="4" cols="50">
+                    Your brief message
+                </textarea><br><br>
+
+        <input type="submit" value="Submit" id="submit_btn">
+      </form> 
+
+    <script>
+        // Задачи 1 и 2
+        let text = "'I can't see anything,' said Molly.";
+        let text2 = text.replace(/'/g,'"');
+        let text3 = text.replace(/\w{3,}'\W{1}/g,'"');
+        
+        document.write('<hr>');
+        document.write('Исходный текст:' + '<br>' + text + '<br>');
+        document.write('<br>');
+        document.write('Модифицированный текст 1:' + '<br>' + text2 + '<br>');
+        document.write('<br>');
+        document.write('Модифицированный текст 2:' + '<br>' + text3);
+
+        // Задача 3
+        document.getElementById('submit_btn').addEventListener('click', event => validate_form());
+        function validate_form (){
+            let name = document.getElementById('name_field');
+            let phone = document.getElementById('phone_field');
+            let email = document.getElementById('email_field');
+                if (!name.value.match(/^[А-ЯЁ][а-яё]*$/gi) && !name.value.match(/^[a-z]*$/gi)) {
+                    name.setAttribute('style', 'border: 2px solid red;');
+                    document.getElementById('name_label').innerHTML='Enter valid name - with letters only';
+                }else{
+                    name.setAttribute('style', 'border: 2px solid green;');
+                    document.getElementById('name_label').innerHTML='Name';
+                }
+                
+                if (!phone.value.match(/\+\d\(\d{3}\)\d{3}-\d{4}/gi)){
+                    phone.setAttribute('style', 'border: 2px solid red; float: left;');
+                    document.getElementById('phone_label').innerHTML='Enter valid email in a format: +7(000)000-0000';
+                }else{
+                    phone.setAttribute('style', 'border: 2px solid green;');
+                    document.getElementById('phone_label').innerHTML='Phone';
+                }
+
+                if (!email.value.match(/^\w+[.-]*\w*@\w*\.\w{2,5}/gi)){
+                    email.setAttribute('style', 'border: 2px solid red; float: left;');
+                    document.getElementById('email_label').innerHTML='Enter valid email in a format: mymail@mail.ru, or my.mail@mail.ru, or my-mail@mail.ru.';
+                }else{
+                    email.setAttribute('style', 'border: 2px solid green;');
+                    document.getElementById('email_label').innerHTML='Email';
+                }
+        }
+
+    </script>
+</body>
+</html>
