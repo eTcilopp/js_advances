@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Computer Store</title>
+</head>
+<body>
+    <div id="app">
+        <header class='header'>
+            <input type="text" class='goods-search' v-model='searchLine'/>
+            <button class = 'search-button' type='button' @click='filterGoods'>Search</button>
+            <button class='cart-button' type='button' @click='showBasket'>Basket</button>
+        </header>
+        <div class='goods-list'>
+            <div class='goods-item' v-if="good.product_name.match(searched)" v-for='good in products'>
+                <img :src=imgCatalog alt="">
+                <h3>{{ good.product_name }}</h3>
+                <p class='price'>{{ good.price }} &#8381</p>
+                <button class='button' @click='addToBasket(good)'>Добавить в корзину</button>
+            </div>
+        </div>
+        <div id="myModal" class="modal" v-bind:style="{ display: basketVisible }">
+            <div class="modal-content">
+                <span class="close" @click='showBasket'>&times;</span>
+                <div v-if="basket.length == 0">
+                    <h3>Корзина пуста</h3>
+                </div>
+                <div class='basket-item' v-for='good in basket'>
+                    <img :src=imgCatalog alt="">
+                    <h3>{{ good.product_name }} x {{ good.product_quantity }} шт</h3>
+                    <p class='price'>Цена:{{ good.price }} &#8381</p>
+                    <p class='price'>Стоимость: {{ good.price*good.product_quantity }} &#8381</p>
+                    <hr>
+                </div>
+            <p class='price' v-if="basket.length != 0">Общая стоимость корзины {{ total_basket_cost() }} &#8381</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
