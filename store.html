@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Computer Store</title>
+</head>
+<body>
+    <div id="app">
+        <header class='header'>
+            <input type="text" class='goods-search' v-model='searchLine'/>
+            <button class='button cart-button' type='button' @click='showBasket'>Basket</button>
+        </header>
+
+        <goods-list-component
+            :products='products' 
+            :imgcatalog='imgCatalog'
+            :searched='searched'
+            @clicked="updateBasket">
+        </goods-list-component>
+        
+        <basket-component
+            ref="basketComponent"
+            :basket='basket'
+            :imgcart='imgCart'>
+        </basket-component>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="components.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
